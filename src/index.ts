@@ -100,6 +100,9 @@ const run = async (config: R2Config) => {
             urls[file] = fileUrl;
         } catch (err: unknown) {
             const error = err as S3ServiceException;
+
+            console.error(`First R2 Error - ${error.message}, in file - ${file}`);
+
             if (error.hasOwnProperty("$metadata")) {
                 if (error.$metadata.httpStatusCode !== 412) // If-None-Match
                     throw { error, file };
