@@ -102,7 +102,7 @@ const run = async (config: R2Config) => {
             const error = err as S3ServiceException;
             if (error.hasOwnProperty("$metadata")) {
                 if (error.$metadata.httpStatusCode !== 412) // If-None-Match
-                    throw error;
+                    throw { error, file };
             }
         }
         return;
@@ -114,13 +114,13 @@ const run = async (config: R2Config) => {
 
 run(config)
     .then(result => setOutput('result', 'success'))
-    .catch(err => {
-        if (err.hasOwnProperty('$metadata')) {
-            console.error(`R2 Error - ${err.message}`);
+    .catch(({ error, file }) => {
+        if (error.hasOwnProperty('$metadata')) {
+            console.error(`R2 Error - ${error.message}, in file - ${file}`);
         } else {
-            console.error('Error', err);
+            console.error('Error', error, file);
         }
 
         setOutput('result', 'failure');
-        setFailed(err.message);
+        setFailed(`${error.message}, in file - ${file}`);
     });
